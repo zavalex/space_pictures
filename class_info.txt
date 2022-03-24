@@ -1,0 +1,1 @@
+{'clear': 0, 'cloudiness': 1, 'light_cloudiness': 2, 'sunset': 3}
