@@ -17,9 +17,13 @@ from PIL import Image
 import os
 from torch.autograd import Variable
 from timeit import default_timer as timer
+import tqdm
+
+device = torch.device('cuda:0')
+#device = torch.device('cpu')
 
 def load_model(PATH):
-    device = torch.device('cpu')
+    #device = torch.device('cpu')
     model = models.efficientnet_b0(pretrained=False)
     for param in model.parameters():
         param.requires_grad = False
@@ -51,7 +55,8 @@ def predict_image(image, model):
     image_tensor = transformation(image).float()
     image_tensor = image_tensor.unsqueeze(0)
     input = Variable(image_tensor)
-    input = input.to(torch.device('cpu'))
+    input = input.to(device)
+    model.cuda()
     output = model(input)
     index = output.data.cpu().numpy().argmax()
     return index
@@ -61,7 +66,8 @@ def eval_model_on_png(model, IMAGE_PATH):
     result = {}
     model.eval()
     with torch.no_grad():
-        for name in os.listdir(IMAGE_PATH):
+        dirs = os.listdir(IMAGE_PATH)
+        for name in tqdm.tqdm(dirs, desc='dirs'):
             img = Image.open(IMAGE_PATH+name)
             result[name]=predict_image(img, model)
     return result
@@ -77,14 +83,15 @@ def main():
     start = timer()
     fit_to_png(FITS_PATH, IMAGES_PATH)
     end = timer()
-    print('FIT to PNG', end - start)
+    print('FIT to PNG:', end - start)
     start = timer()
     result = eval_model_on_png(model,IMAGES_PATH)
     end = timer()
-    print('Evaluation on PNG', end - start)
+    print('Evaluation on PNG:', end - start)
     with open(RESULT_PATH, 'w') as f:
         for key in result.keys():
             f.write("%s,%s\n"%(key,result[key]))
+    filtered_dict = {k:v for k,v in result.items() if v==0 or v==2}
 
 if __name__ == "__main__":
     main()
