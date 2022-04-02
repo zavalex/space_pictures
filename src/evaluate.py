@@ -10,6 +10,7 @@
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
+import torchvision
 import sys
 from fit_preprocess import fit_to_dict, fit_to_png
 #import numpy as np
@@ -49,8 +50,6 @@ def eval_model(model, images):
             pass
     return result
 
-
-
 def predict_image(image, model):
     image_tensor = transformation(image).float()
     image_tensor = image_tensor.unsqueeze(0)
@@ -61,6 +60,10 @@ def predict_image(image, model):
     index = output.data.cpu().numpy().argmax()
     return index
 
+def eval_model_dataloader(model, images, batch_size:int=32):
+    dataset = torchvision.datasets.ImageFolder(images, transformation)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size)
+    pass
 
 def eval_model_on_png(model, IMAGE_PATH):
     result = {}
@@ -92,6 +95,9 @@ def main():
         for key in result.keys():
             f.write("%s,%s\n"%(key,result[key]))
     filtered_dict = {k:v for k,v in result.items() if v==0 or v==2}
+    with open('filtered_result.csv', 'w') as f:
+        for key in filtered_dict.keys():
+            f.write("%s,%s\n"%(key,filtered_dict[key]))
 
 if __name__ == "__main__":
     main()
