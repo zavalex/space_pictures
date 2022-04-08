@@ -81,7 +81,8 @@ def create_dataloaders(train_folder,batch_size):
         transforms.Resize((224, 224)),
         transforms.RandomHorizontalFlip(p=0.5),
         transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        #transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.5362, 0.5362, 0.5362], [0.3288, 0.3288, 0.3288])
     ])
     dataset = torchvision.datasets.ImageFolder(train_folder, train_transforms)
 
@@ -103,11 +104,21 @@ def create_dataloaders(train_folder,batch_size):
                                              sampler=val_sampler)
     return train_loader, val_loader
 
+def test_model(model, batch_size, test_path):
+    test_transforms = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5362, 0.5362, 0.5362], [0.3288, 0.3288, 0.3288])
+    ])
+    test_dataset = torchvision.datasets.ImageFolder(test_path, test_transforms)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size)
+    accuracy = compute_accuracy(model, test_loader)
+    return accuracy
 
 def main():
     args = sys.argv[1:]
     TRAIN_FOLDER = args[0]
-    PATH = args[1]
+    MODEL_PATH = args[1]
     MODEL_NAME = args[2]
     train_loader, val_loader = create_dataloaders(TRAIN_FOLDER, 16)
     model = models.efficientnet_b0(pretrained=True)
@@ -126,7 +137,8 @@ def main():
     loss_history, train_history, val_history = train_model(
         model, train_loader, val_loader, loss, optimizer, 10,
         sheduler)
-    torch.save(model.state_dict(), PATH+'/'+MODEL_NAME)
+    torch.save(model.state_dict(), MODEL_PATH+'/'+MODEL_NAME)
+    print(test_model(model,16,'/home/alex/space_pictures/images/test'))
 
 
 if __name__ == "__main__":
