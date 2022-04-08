@@ -128,7 +128,8 @@ def main():
         nn.Dropout(p=0.2, inplace=True),
         nn.Linear(in_features=1280, out_features=4, bias=True)
     )
-    model = model.to(device)
+    #model = model.to(device)
+    model.cuda()
     loss = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(),
         lr=1e-3)
