@@ -5,4 +5,4 @@ Classification of images from sky camera to 4 classes, depending on cloudiness:
 3. light cloudiness
 4. sunset\sunrise
 
-*numpy* *pytorch* *astropy*
+*pytorch* *numpy* *astropy*
