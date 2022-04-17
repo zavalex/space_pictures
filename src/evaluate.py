@@ -12,7 +12,7 @@ import torch.nn as nn
 from torchvision import models, transforms
 import torchvision
 import sys
-from fit_preprocess import fit_to_dict, fit_to_png
+from images_preprocess import fit_to_dict, fit_to_png
 #import numpy as np
 from PIL import Image
 import os
